@@ -1,0 +1,251 @@
+#!/bin/sh
+set -eu
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+HBPL_BIN="$ROOT_DIR/bin/foo2hbpl2"
+
+if [ ! -x "$HBPL_BIN" ]; then
+  echo "m205-hbpl-filter: missing encoder at $HBPL_BIN" >&2
+  exit 1
+fi
+
+if command -v gs >/dev/null 2>&1; then
+  GSBIN=$(command -v gs)
+elif [ -x /opt/homebrew/bin/gs ]; then
+  GSBIN=/opt/homebrew/bin/gs
+else
+  echo "m205-hbpl-filter: ghostscript not found" >&2
+  exit 1
+fi
+
+JOB_ID="${1:-0}"
+USER_NAME="${2:-unknown}"
+JOB_TITLE="${3:-Untitled}"
+COPIES="${4:-1}"
+OPTIONS="${5:-}"
+INPUT_FILE="${6:-}"
+CONTENT_TYPE="${CONTENT_TYPE:-application/vnd.cups-pdf}"
+
+option_value() {
+  key=$1
+  for token in $OPTIONS; do
+    case "$token" in
+      "$key"=*)
+        printf '%s\n' "${token#*=}"
+        return 0
+        ;;
+    esac
+  done
+  return 1
+}
+
+PAGE_SIZE=${PAGE_SIZE:-}
+if [ -z "$PAGE_SIZE" ]; then
+  PAGE_SIZE=$(option_value PageSize || true)
+fi
+if [ -z "$PAGE_SIZE" ]; then
+  PAGE_SIZE=$(option_value media || true)
+fi
+if [ -z "$PAGE_SIZE" ]; then
+  PAGE_SIZE=Letter
+fi
+
+RESOLUTION=$(option_value Resolution || true)
+if [ -z "$RESOLUTION" ]; then
+  RESOLUTION=$(option_value printer-resolution || true)
+fi
+if [ -z "$RESOLUTION" ]; then
+  RESOLUTION=600x600dpi
+fi
+
+MEDIA_TYPE=$(option_value MediaType || true)
+if [ -z "$MEDIA_TYPE" ]; then
+  MEDIA_TYPE=plain
+fi
+
+INPUT_SLOT=$(option_value InputSlot || true)
+if [ -z "$INPUT_SLOT" ]; then
+  INPUT_SLOT=Tray1
+fi
+
+QUALITY=$(option_value Quality || true)
+if [ -z "$QUALITY" ]; then
+  QUALITY=normal
+fi
+
+trim_dpi() {
+  printf '%s\n' "$1" | sed 's/dpi$//'
+}
+
+set_page() {
+  case "$1" in
+    A4|iso_a4_210x297mm|na_a4_210x297mm)
+      PAPER_CODE=1
+      PAPER_NAME=a4
+      XDIM=9920
+      YDIM=7016
+      CLIP_UL=150x100
+      CLIP_LR=150x100
+      ;;
+    B5|B5JIS|B5jis|jis_b5_182x257mm)
+      PAPER_CODE=2
+      PAPER_NAME=b5
+      XDIM=8598
+      YDIM=6070
+      CLIP_UL=138x100
+      CLIP_LR=138x100
+      ;;
+    A5|iso_a5_148x210mm)
+      PAPER_CODE=3
+      PAPER_NAME=a5
+      XDIM=6992
+      YDIM=4960
+      CLIP_UL=168x100
+      CLIP_LR=168x100
+      ;;
+    Letter|na_letter_8.5x11in)
+      PAPER_CODE=4
+      PAPER_NAME=letter
+      XDIM=10200
+      YDIM=6600
+      CLIP_UL=150x100
+      CLIP_LR=150x100
+      ;;
+    Executive|na_executive_7.25x10.5in)
+      PAPER_CODE=5
+      PAPER_NAME=executive
+      XDIM=8700
+      YDIM=6300
+      CLIP_UL=150x100
+      CLIP_LR=150x100
+      ;;
+    Folio|fanfoldgermanlegal)
+      PAPER_CODE=6
+      PAPER_NAME=legal
+      XDIM=10200
+      YDIM=7800
+      CLIP_UL=150x100
+      CLIP_LR=150x100
+      ;;
+    Legal|na_legal_8.5x14in)
+      PAPER_CODE=7
+      PAPER_NAME=legal
+      XDIM=10200
+      YDIM=8400
+      CLIP_UL=150x100
+      CLIP_LR=150x100
+      ;;
+    Env10|na_number-10_4.125x9.5in)
+      PAPER_CODE=9
+      PAPER_NAME=env10
+      XDIM=4950
+      YDIM=5700
+      CLIP_UL=171x100
+      CLIP_LR=171x100
+      ;;
+    EnvMonarch|monarch_3.875x7.5in)
+      PAPER_CODE=10
+      PAPER_NAME=envMonarch
+      XDIM=4650
+      YDIM=4500
+      CLIP_UL=150x100
+      CLIP_LR=150x100
+      ;;
+    EnvC5|iso_c5_162x229mm)
+      PAPER_CODE=11
+      PAPER_NAME=envC5
+      XDIM=7650
+      YDIM=5408
+      CLIP_UL=150x100
+      CLIP_LR=150x100
+      ;;
+    EnvDL|iso_dl_110x220mm)
+      PAPER_CODE=12
+      PAPER_NAME=envDL
+      XDIM=5200
+      YDIM=5200
+      CLIP_UL=168x100
+      CLIP_LR=168x100
+      ;;
+    *)
+      PAPER_CODE=4
+      PAPER_NAME=letter
+      XDIM=10200
+      YDIM=6600
+      CLIP_UL=150x100
+      CLIP_LR=150x100
+      ;;
+  esac
+}
+
+set_resolution() {
+  case "$(trim_dpi "$1")" in
+    600|600x600)
+      RES=600x600
+      XDIM=$((XDIM / 2))
+      ;;
+    1200|1200x1200)
+      RES=1200x1200
+      YDIM=$((YDIM * 2))
+      ;;
+    1200x600)
+      RES=1200x600
+      ;;
+    *)
+      RES=600x600
+      XDIM=$((XDIM / 2))
+      ;;
+  esac
+}
+
+set_media() {
+  case "$1" in
+    plain|Plain) MEDIA_CODE=1 ;;
+    bond|Bond) MEDIA_CODE=2 ;;
+    lwcard|LightWeightCard) MEDIA_CODE=3 ;;
+    lwgcard|GlossyCard) MEDIA_CODE=4 ;;
+    labels|Labels) MEDIA_CODE=5 ;;
+    envelope|Envelope) MEDIA_CODE=6 ;;
+    recycled|Recycled) MEDIA_CODE=7 ;;
+    *) MEDIA_CODE=1 ;;
+  esac
+}
+
+set_source() {
+  case "$1" in
+    Manual|manual) SOURCE_CODE=2 ;;
+    Auto|auto) SOURCE_CODE=1 ;;
+    Tray1|tray1) SOURCE_CODE=4 ;;
+    *) SOURCE_CODE=4 ;;
+  esac
+}
+
+set_page "$PAGE_SIZE"
+set_resolution "$RESOLUTION"
+set_media "$MEDIA_TYPE"
+set_source "$INPUT_SLOT"
+DIM="${XDIM}x${YDIM}"
+PAPERSIZE="-sPAPERSIZE=$PAPER_NAME"
+SAVE_TONER=
+if [ "$QUALITY" = "draft" ]; then
+  SAVE_TONER=-t
+fi
+
+emit_input() {
+  if [ -n "$INPUT_FILE" ]; then
+    cat "$INPUT_FILE"
+  else
+    cat
+  fi
+}
+
+GS="$GSBIN -q -dBATCH -dSAFER -dQUIET -dNOPAUSE"
+
+emit_input \
+  | ($GS $PAPERSIZE -g"$DIM" -r"$RES" -sDEVICE=pbmraw \
+      -sOutputFile="|cat 1>&3" -_ >/dev/null) 3>&1 \
+  | "$HBPL_BIN" -r"$RES" -g"$DIM" -p"$PAPER_CODE" -m"$MEDIA_CODE" \
+      -n"$COPIES" -d1 -s"$SOURCE_CODE" -z0 \
+      -u"$CLIP_UL" -l"$CLIP_LR" $SAVE_TONER \
+      -J "$JOB_TITLE" -U "$USER_NAME"

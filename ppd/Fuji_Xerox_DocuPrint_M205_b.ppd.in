@@ -1,0 +1,128 @@
+*PPD-Adobe: "4.3"
+*FormatVersion: "4.3"
+*FileVersion: "0.1"
+*LanguageVersion: English
+*LanguageEncoding: ISOLatin1
+*PCFileName: "M205HBPL.PPD"
+*Manufacturer: "FUJI XEROX"
+*Product: "(DocuPrint M205 b)"
+*ModelName: "FUJI XEROX DocuPrint M205 b"
+*ShortNickName: "DocuPrint M205 b HBPL"
+*NickName: "FUJI XEROX DocuPrint M205 b HBPL (experimental)"
+*PSVersion: "(3010.000) 0"
+*LanguageLevel: "3"
+*ColorDevice: False
+*DefaultColorSpace: Gray
+*FileSystem: False
+*Throughput: "20"
+*LandscapeOrientation: Plus90
+*TTRasterizer: Type42
+*cupsVersion: 1.0
+*cupsManualCopies: True
+*cupsFilter: "application/vnd.cups-pdf 0 @FILTER_PATH@"
+*cupsFilter: "application/vnd.cups-postscript 100 @FILTER_PATH@"
+*cupsFilter: "application/postscript 100 @FILTER_PATH@"
+*1284DeviceID: "MFG:FUJI XEROX;CMD:HBPL;MDL:DocuPrint M205 b;CLS:Printer;"
+
+*HWMargins: 9 12 9 12
+*VariablePaperSize: True
+*MaxMediaWidth: 100000
+*MaxMediaHeight: 100000
+*NonUIOrderDependency: 135 AnySetup *CustomPageSize
+*CustomPageSize True: "pop pop pop pop pop"
+*ParamCustomPageSize Width: 1 points 36 100000
+*ParamCustomPageSize Height: 2 points 36 100000
+*ParamCustomPageSize Orientation: 3 int 0 0
+*ParamCustomPageSize WidthOffset: 4 points 0 0
+*ParamCustomPageSize HeightOffset: 5 points 0 0
+
+*OpenGroup: General/General
+
+*OpenUI *Quality/Print Quality: PickOne
+*OrderDependency: 110 AnySetup *Quality
+*DefaultQuality: normal
+*Quality draft/Draft: ""
+*Quality normal/Normal: ""
+*CloseUI: *Quality
+
+*OpenUI *Resolution/Resolution: PickOne
+*OrderDependency: 120 AnySetup *Resolution
+*DefaultResolution: 600x600dpi
+*Resolution 600x600dpi/600 x 600 dpi: "<</HWResolution[600 600]>>setpagedevice"
+*Resolution 1200x1200dpi/1200 x 1200 dpi: "<</HWResolution[1200 1200]>>setpagedevice"
+*CloseUI: *Resolution
+
+*OpenUI *PageSize/Page Size: PickOne
+*OrderDependency: 130 AnySetup *PageSize
+*DefaultPageSize: Letter
+*PageSize Letter/Letter: "<</PageSize[612 792]>>setpagedevice"
+*PageSize A4/A4: "<</PageSize[595 842]>>setpagedevice"
+*PageSize A5/A5: "<</PageSize[420 595]>>setpagedevice"
+*PageSize B5/B5 (JIS): "<</PageSize[516 729]>>setpagedevice"
+*PageSize Executive/Executive: "<</PageSize[522 756]>>setpagedevice"
+*PageSize Legal/Legal: "<</PageSize[612 1008]>>setpagedevice"
+*PageSize Env10/Envelope #10: "<</PageSize[297 684]>>setpagedevice"
+*PageSize EnvC5/Envelope C5: "<</PageSize[459 649]>>setpagedevice"
+*PageSize EnvDL/Envelope DL: "<</PageSize[312 624]>>setpagedevice"
+*PageSize EnvMonarch/Envelope Monarch: "<</PageSize[279 540]>>setpagedevice"
+*CloseUI: *PageSize
+
+*OpenUI *PageRegion/Page Region: PickOne
+*OrderDependency: 130 AnySetup *PageRegion
+*DefaultPageRegion: Letter
+*PageRegion Letter/Letter: "<</PageSize[612 792]>>setpagedevice"
+*PageRegion A4/A4: "<</PageSize[595 842]>>setpagedevice"
+*PageRegion A5/A5: "<</PageSize[420 595]>>setpagedevice"
+*PageRegion B5/B5 (JIS): "<</PageSize[516 729]>>setpagedevice"
+*PageRegion Executive/Executive: "<</PageSize[522 756]>>setpagedevice"
+*PageRegion Legal/Legal: "<</PageSize[612 1008]>>setpagedevice"
+*PageRegion Env10/Envelope #10: "<</PageSize[297 684]>>setpagedevice"
+*PageRegion EnvC5/Envelope C5: "<</PageSize[459 649]>>setpagedevice"
+*PageRegion EnvDL/Envelope DL: "<</PageSize[312 624]>>setpagedevice"
+*PageRegion EnvMonarch/Envelope Monarch: "<</PageSize[279 540]>>setpagedevice"
+*CloseUI: *PageRegion
+
+*DefaultImageableArea: Letter
+*ImageableArea Letter/Letter: "9 12 603 780"
+*ImageableArea A4/A4: "9 12 586 830"
+*ImageableArea A5/A5: "9 12 411 583"
+*ImageableArea B5/B5 (JIS): "9 12 509 715"
+*ImageableArea Executive/Executive: "9 12 513 744"
+*ImageableArea Legal/Legal: "9 12 603 996"
+*ImageableArea Env10/Envelope #10: "9 12 288 672"
+*ImageableArea EnvC5/Envelope C5: "9 12 450 637"
+*ImageableArea EnvDL/Envelope DL: "9 12 302 611"
+*ImageableArea EnvMonarch/Envelope Monarch: "9 12 270 528"
+
+*DefaultPaperDimension: Letter
+*PaperDimension Letter/Letter: "612 792"
+*PaperDimension A4/A4: "595 842"
+*PaperDimension A5/A5: "420 595"
+*PaperDimension B5/B5 (JIS): "516 729"
+*PaperDimension Executive/Executive: "522 756"
+*PaperDimension Legal/Legal: "612 1008"
+*PaperDimension Env10/Envelope #10: "297 684"
+*PaperDimension EnvC5/Envelope C5: "459 649"
+*PaperDimension EnvDL/Envelope DL: "312 624"
+*PaperDimension EnvMonarch/Envelope Monarch: "279 540"
+
+*OpenUI *MediaType/Media Type: PickOne
+*OrderDependency: 140 AnySetup *MediaType
+*DefaultMediaType: plain
+*MediaType plain/Plain Paper: "<</MediaType(plain)>>setpagedevice"
+*MediaType bond/Bond: "<</MediaType(bond)>>setpagedevice"
+*MediaType envelope/Envelope: "<</MediaType(envelope)>>setpagedevice"
+*MediaType labels/Labels: "<</MediaType(labels)>>setpagedevice"
+*MediaType lwcard/Lightweight Card: "<</MediaType(lwcard)>>setpagedevice"
+*MediaType lwgcard/Glossy Card: "<</MediaType(lwgcard)>>setpagedevice"
+*MediaType recycled/Recycled: "<</MediaType(recycled)>>setpagedevice"
+*CloseUI: *MediaType
+
+*OpenUI *InputSlot/Media Source: PickOne
+*OrderDependency: 150 AnySetup *InputSlot
+*DefaultInputSlot: Tray1
+*InputSlot Tray1/Tray 1: "<</MediaPosition 4>>setpagedevice"
+*InputSlot Manual/Manual Feed: "<</MediaPosition 2>>setpagedevice"
+*CloseUI: *InputSlot
+
+*CloseGroup: General
